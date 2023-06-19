@@ -18,14 +18,16 @@ const handleListen = () => console.log(`Listening on http://localhost:${PORT}`);
 const server = http.createServer(app);
 const wsServer = new WebSocket.Server({ server });
 
+const sockets = [];
+
 wsServer.on("connection", (socket) => {
+  sockets.push(socket);
   console.log("Connected to Browser ✅");
   socket.on("close", () => console.log("Disconnected from Browser ❌"));
   socket.on("message", (data, isBinary) => {
     const message = isBinary ? data : data.toString();
-    console.log(message);
+    sockets.forEach((socket) => socket.send(message));
   });
-  socket.send("Hello!!");
 });
 
 server.listen(PORT, handleListen);
