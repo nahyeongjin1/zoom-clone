@@ -24,9 +24,11 @@ wsServer.on("connection", (socket) => {
   sockets.push(socket);
   console.log("Connected to Browser ✅");
   socket.on("close", () => console.log("Disconnected from Browser ❌"));
-  socket.on("message", (data, isBinary) => {
-    const message = isBinary ? data : data.toString();
-    sockets.forEach((socket) => socket.send(message));
+  socket.on("message", (json, isBinary) => {
+    const data = JSON.parse(json);
+    console.log(data);
+    //const message = isBinary ? data : data.toString();
+    //sockets.forEach((socket) => socket.send(message));
   });
 });
 
