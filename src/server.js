@@ -22,13 +22,26 @@ const sockets = [];
 
 wsServer.on("connection", (socket) => {
   sockets.push(socket);
+  socket["nickname"] = "Anonymous";
   console.log("Connected to Browser ✅");
   socket.on("close", () => console.log("Disconnected from Browser ❌"));
-  socket.on("message", (json, isBinary) => {
-    const data = JSON.parse(json);
-    console.log(data);
-    //const message = isBinary ? data : data.toString();
-    //sockets.forEach((socket) => socket.send(message));
+  socket.on("message", (stringifiedJson, isBinary) => {
+    const messageObj = JSON.parse(stringifiedJson);
+    switch (messageObj.type) {
+      case "new_message":
+        const message = isBinary
+          ? messageObj.payload
+          : messageObj.payload.toString();
+        sockets.forEach((item) => item.send(`${socket.nickname}: ${message}`));
+        break;
+      case "nickname":
+        socket["nickname"] = isBinary
+          ? messageObj.payload
+          : messageObj.payload.toString();
+        break;
+      default:
+        break;
+    }
   });
 });
 
