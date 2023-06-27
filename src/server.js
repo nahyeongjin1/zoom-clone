@@ -1,5 +1,5 @@
 import http from "http";
-import WebSocket from "ws";
+import SocketIO from "socket.io";
 import express from "express";
 
 const app = express();
@@ -15,34 +15,38 @@ app.get("/*", (_, res) => res.redirect("/"));
 
 const handleListen = () => console.log(`Listening on http://localhost:${PORT}`);
 
-const server = http.createServer(app);
-const wsServer = new WebSocket.Server({ server });
-
-const sockets = [];
+const httpServer = http.createServer(app);
+const wsServer = SocketIO(httpServer);
 
 wsServer.on("connection", (socket) => {
-  sockets.push(socket);
-  socket["nickname"] = "Anonymous";
-  console.log("Connected to Browser ✅");
-  socket.on("close", () => console.log("Disconnected from Browser ❌"));
-  socket.on("message", (stringifiedJson, isBinary) => {
-    const messageObj = JSON.parse(stringifiedJson);
-    switch (messageObj.type) {
-      case "new_message":
-        const message = isBinary
-          ? messageObj.payload
-          : messageObj.payload.toString();
-        sockets.forEach((item) => item.send(`${socket.nickname}: ${message}`));
-        break;
-      case "nickname":
-        socket["nickname"] = isBinary
-          ? messageObj.payload
-          : messageObj.payload.toString();
-        break;
-      default:
-        break;
-    }
-  });
+  console.log(socket);
 });
 
-server.listen(PORT, handleListen);
+// const sockets = [];
+// const wsServer = new WebSocket.Server({ server });
+// wsServer.on("connection", (socket) => {
+//   sockets.push(socket);
+//   socket["nickname"] = "Anonymous";
+//   console.log("Connected to Browser ✅");
+//   socket.on("close", () => console.log("Disconnected from Browser ❌"));
+//   socket.on("message", (stringifiedJson, isBinary) => {
+//     const messageObj = JSON.parse(stringifiedJson);
+//     switch (messageObj.type) {
+//       case "new_message":
+//         const message = isBinary
+//           ? messageObj.payload
+//           : messageObj.payload.toString();
+//         sockets.forEach((item) => item.send(`${socket.nickname}: ${message}`));
+//         break;
+//       case "nickname":
+//         socket["nickname"] = isBinary
+//           ? messageObj.payload
+//           : messageObj.payload.toString();
+//         break;
+//       default:
+//         break;
+//     }
+//   });
+// });
+
+httpServer.listen(PORT, handleListen);
