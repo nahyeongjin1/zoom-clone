@@ -60,3 +60,16 @@ socket.on("bye", (username) => {
 });
 
 socket.on("new_message", addMessage);
+
+socket.on("room_change", (openRooms) => {
+  const openRoomList = welcome.querySelector("ul");
+  openRoomList.innerHTML = "";
+  if (openRooms.length === 0) {
+    return;
+  }
+  openRooms.forEach((room) => {
+    const li = document.createElement("li");
+    li.innerText = room;
+    openRoomList.append(li);
+  });
+});
